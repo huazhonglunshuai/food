@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Gitee 测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .box { border: 2px solid #0052D9; padding: 20px; display: inline-block; border-radius: 8px; background: #f0f7ff; }
+        h1 { color: #0052D9; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h1>🎉 恭喜！Gitee Pages 部署成功！</h1>
+    <p>如果你能看到这行字，说明国内访问速度飞快。</p>
+    <p>当前服务器时间：<span id="time" style="font-weight:bold; color:red;"></span></p>
+</div>
+<script>
+    // 简单脚本，每秒更新时间，证明 JS 也能运行
+    setInterval(() => {
+        document.getElementById('time').innerText = new Date().toLocaleString();
+    }, 1000);
+</script>
+</body>
+</html>
