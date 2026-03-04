@@ -2,24 +2,422 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Gitee 测试页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>美食做法大全</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .box { border: 2px solid #0052D9; padding: 20px; display: inline-block; border-radius: 8px; background: #f0f7ff; }
-        h1 { color: #0052D9; }
+        /* 基础样式重置与移动端适配 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            width: 100%;
+            min-height: 100vh;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+        }
+        .container {
+            background: white;
+            padding: 20px 15px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #48bb78;
+            border-radius: 3px;
+        }
+
+        /* 功能模块样式 */
+        .module {
+            margin-bottom: 25px;
+            padding: 20px 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        .module h2 {
+            color: #4a5568;
+            margin-bottom: 18px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .module h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: #48bb78;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        /* 按钮通用样式 */
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(to right, #48bb78, #38a169);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+        .btn-danger {
+            background: linear-gradient(to right, #e53e3e, #c53030);
+            box-shadow: 0 2px 4px rgba(229, 62, 62, 0.2);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
+        }
+
+        /* 随机推荐样式 */
+        #random-result {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            font-size: 15px;
+            color: #4a5568;
+        }
+
+        /* 搜索框样式 */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #2d3748;
+            outline: none;
+            transition: border 0.2s ease;
+        }
+        #search-input:focus {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+        #search-input::placeholder {
+            color: #adb5bd;
+        }
+        #search-result {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            font-size: 15px;
+            color: #4a5568;
+        }
+
+        /* 全部菜品样式 */
+        #all-recipes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .recipe-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            font-size: 15px;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+        .recipe-item:hover {
+            border-color: #48bb78;
+            background: #f0f8f4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 18px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        /* 做法步骤样式 */
+        .method-steps {
+            line-height: 1.8;
+            color: #4a5568;
+            font-size: 15px;
+            padding: 10px 0;
+        }
+        .method-steps .step {
+            margin: 8px 0;
+            padding-left: 5px;
+        }
+        .close-btn {
+            display: block;
+            margin: 15px auto 0;
+            width: 100%;
+        }
+
+        /* 移动端特殊适配 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px 10px;
+            }
+            .module {
+                padding: 15px 10px;
+                margin-bottom: 20px;
+            }
+            #search-input {
+                min-width: 100%;
+            }
+            .search-box .btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .modal-content {
+                padding: 20px 15px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="box">
-    <h1>🎉 恭喜！Gitee Pages 部署成功！</h1>
-    <p>如果你能看到这行字，说明国内访问速度飞快。</p>
-    <p>当前服务器时间：<span id="time" style="font-weight:bold; color:red;"></span></p>
+<div class="container">
+    <h1>旺仔食谱</h1>
+
+    <!-- 随机推荐模块 -->
+    <div class="module">
+        <h2>随机推荐</h2>
+        <button id="random-btn" class="btn">点击随机推荐一道菜</button>
+        <div id="random-result"></div>
+    </div>
+
+    <!-- 搜索模块 -->
+    <div class="module">
+        <h2>菜品搜索</h2>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="输入菜名关键词，如：黄瓜、鸡蛋">
+            <button id="search-btn" class="btn">搜索</button>
+        </div>
+        <div id="search-result"></div>
+    </div>
+
+    <!-- 全部菜品模块 -->
+    <div class="module">
+        <h2>全部菜品</h2>
+        <div id="all-recipes"></div>
+    </div>
 </div>
+
+<!-- 做法弹窗 -->
+<div class="modal" id="method-modal">
+    <div class="modal-content">
+        <h3 id="modal-title"></h3>
+        <div id="modal-method" class="method-steps"></div>
+        <button class="btn btn-danger btn-sm close-btn" onclick="closeModal()">关闭</button>
+    </div>
+</div>
+
 <script>
-    // 简单脚本，每秒更新时间，证明 JS 也能运行
-    setInterval(() => {
-        document.getElementById('time').innerText = new Date().toLocaleString();
-    }, 1000);
+    // 全局变量存储菜品数据
+    let recipesData = [];
+
+    // 页面加载时读取JSON文件
+    window.onload = async function() {
+        try {
+            // 读取同目录下的recipes.json文件
+            const response = await fetch('recipes.json');
+            if (!response.ok) {
+                throw new Error(`请求失败：${response.status}`);
+            }
+            recipesData = await response.json();
+            // 初始化全部菜品列表
+            renderAllRecipes();
+        } catch (error) {
+            console.error('加载菜品数据失败:', error);
+            alert('加载菜品数据失败，请检查JSON文件路径是否正确！');
+        }
+    };
+
+    // 处理做法步骤换行的函数
+    function formatMethodSteps(methodText) {
+        let formatted = methodText.replace(/。$/, '');
+        formatted = formatted.replace(/([；;])(\d、)/g, '<br>$2');
+        formatted = formatted.split('<br>').map(step => {
+            return `<div class="step">${step}</div>`;
+        }).join('');
+        return formatted;
+    }
+
+    // 随机推荐功能
+    document.getElementById('random-btn').addEventListener('click', function() {
+        if (recipesData.length === 0) {
+            alert('暂无菜品数据！');
+            return;
+        }
+        const randomIndex = Math.floor(Math.random() * recipesData.length);
+        const randomRecipe = recipesData[randomIndex];
+
+        const resultDiv = document.getElementById('random-result');
+        resultDiv.innerHTML = `
+                今日推荐：<strong style="color:#48bb78;">${randomRecipe.name}</strong>
+                <button class="btn btn-sm" style="margin-left:10px;" onclick="showMethod('${randomRecipe.name}', '${randomRecipe.method}')">查看做法</button>
+            `;
+    });
+
+    // 搜索功能
+    document.getElementById('search-btn').addEventListener('click', function() {
+        const searchText = document.getElementById('search-input').value.trim().toLowerCase();
+        const resultDiv = document.getElementById('search-result');
+
+        if (searchText === '') {
+            resultDiv.innerHTML = '<span style="color:#e53e3e;">请输入搜索关键词！</span>';
+            return;
+        }
+
+        const matchedRecipes = recipesData.filter(recipe =>
+            recipe.name.toLowerCase().includes(searchText)
+        );
+
+        if (matchedRecipes.length === 0) {
+            resultDiv.innerHTML = '<span style="color:#ed8936;">未找到匹配的菜品！</span>';
+            return;
+        }
+
+        let resultHtml = '找到以下菜品：<br><br>';
+        matchedRecipes.forEach(recipe => {
+            resultHtml += `
+                    <div style="margin-bottom:8px;">
+                        <strong>${recipe.name}</strong>
+                        <button class="btn btn-sm" style="margin-left:8px;" onclick="showMethod('${recipe.name}', '${recipe.method}')">查看做法</button>
+                    </div>
+                `;
+        });
+        resultDiv.innerHTML = resultHtml;
+    });
+
+    // 渲染全部菜品列表
+    function renderAllRecipes() {
+        const allRecipesDiv = document.getElementById('all-recipes');
+        if (recipesData.length === 0) {
+            allRecipesDiv.innerHTML = '暂无菜品数据！';
+            return;
+        }
+
+        let html = '';
+        recipesData.forEach(recipe => {
+            html += `
+                    <div class="recipe-item" onclick="showMethod('${recipe.name}', '${recipe.method}')">
+                        🥘 ${recipe.name} <span style="color:#adb5bd;float:right;">点击查看做法</span>
+                    </div>
+                `;
+        });
+        allRecipesDiv.innerHTML = html;
+    }
+
+    // 显示做法弹窗
+    function showMethod(name, method) {
+        document.getElementById('modal-title').textContent = name + ' - 详细做法';
+        document.getElementById('modal-method').innerHTML = formatMethodSteps(method);
+        document.getElementById('method-modal').style.display = 'flex';
+    }
+
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('method-modal').style.display = 'none';
+    }
+
+    // 点击弹窗外部关闭
+    window.onclick = function(event) {
+        const modal = document.getElementById('method-modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+
+    // 支持回车搜索
+    document.getElementById('search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('search-btn').click();
+        }
+    });
 </script>
 </body>
 </html>
